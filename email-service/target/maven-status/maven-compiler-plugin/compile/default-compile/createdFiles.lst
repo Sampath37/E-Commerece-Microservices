@@ -1,0 +1,5 @@
+com\example\ecommerce\emailservice\repo\EmailLogRepository.class
+com\example\ecommerce\emailservice\service\EmailService.class
+com\example\ecommerce\emailservice\entity\EmailLog.class
+com\example\ecommerce\emailservice\controller\EmailController.class
+com\example\ecommerce\emailservice\EmailServiceApplication.class

@@ -1,0 +1,5 @@
+com\example\ecommerce\analyticsservice\entity\AnalyticsMetric.class
+com\example\ecommerce\analyticsservice\AnalyticsServiceApplication.class
+com\example\ecommerce\analyticsservice\service\AnalyticsService.class
+com\example\ecommerce\analyticsservice\repo\AnalyticsMetricRepository.class
+com\example\ecommerce\analyticsservice\controller\AnalyticsController.class
