@@ -68,11 +68,13 @@ public class EmailService {
 
             String recipientEmail = userDto.getEmail();
             String subject = "Payment Successful - Order #" + orderId;
+            String shippingAddress = orderDto.getAddress() != null ? orderDto.getAddress() : (userDto.getAddress() != null ? userDto.getAddress() : "Not Provided");
             String body = "Dear " + (userDto.getName() != null ? userDto.getName() : "Customer") + ",\n\n" +
                           "We have received your payment for order #" + orderId + ".\n" +
-                          "Product Code: " + orderDto.getProductCode() + "\n" +
+                          "Product Name: " + orderDto.getProductCode() + "\n" +
                           "Quantity: " + orderDto.getQuantity() + "\n" +
-                          "Payment Status: " + paymentEvent.getStatus() + "\n\n" +
+                          "Payment Status: " + paymentEvent.getStatus() + "\n" +
+                          "Shipping Address: " + shippingAddress + "\n\n" +
                           "Thank you for shopping with us!";
 
             // Send actual email

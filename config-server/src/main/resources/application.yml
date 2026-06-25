@@ -8,6 +8,6 @@ spring:
     config:
       server:
         git:
-          uri: file:///D:/SP/Java_Projects/ecommerce-config-repo
+          uri: https://github.com/Sampath37/ecommerce-config-repo.git
           default-label: main
           clone-on-start: true

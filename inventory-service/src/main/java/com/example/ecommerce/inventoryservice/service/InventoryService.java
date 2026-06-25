@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RefreshScope
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;

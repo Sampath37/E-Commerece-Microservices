@@ -9,4 +9,5 @@ public class OrderDto {
     private String productCode;
     private Integer quantity;
     private String status;
+    private String address;
 }

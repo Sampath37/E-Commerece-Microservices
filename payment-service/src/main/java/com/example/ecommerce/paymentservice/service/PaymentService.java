@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RefreshScope
 public class PaymentService {
 
 	private final PaymentRepository paymentRepository;
@@ -37,17 +39,17 @@ public class PaymentService {
 		return paymentRepository.findAll();
 	}
 
-	@KafkaListener(topics = "${app.kafka.topic.order-created}", groupId = "payment-group")
+	@KafkaListener(topics = "${app.kafka.topic.inventory-reserved}", groupId = "payment-group")
 	@Transactional
-	public void consumeOrderCreatedEvent(Map<String, Object> orderEvent) {
+	public void consumeInventoryReservedEvent(Map<String, Object> reservedEventMap) {
 		try {
-			if (orderEvent == null || orderEvent.isEmpty())
+			if (reservedEventMap == null || reservedEventMap.isEmpty())
 				return;
-			log.info("Payment Service consumed OrderCreated event: {}", orderEvent);
-			// Assume orderEvent has 'id' for orderId
-			Number orderIdNumber = (Number) orderEvent.get("id");
-			if (orderIdNumber != null) {
-				Long orderId = orderIdNumber.longValue();
+			log.info("Payment Service consumed InventoryReserved event: {}", reservedEventMap);
+			
+			String orderIdStr = (String) reservedEventMap.get("orderId");
+			if (orderIdStr != null) {
+				Long orderId = Long.valueOf(orderIdStr);
 
 				// Synchronous validation using OpenFeign
 				try {

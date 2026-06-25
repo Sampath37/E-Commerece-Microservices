@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RefreshScope
 public class OrderService {
 
 	private final OrderRepository orderRepository;
@@ -140,13 +142,36 @@ public class OrderService {
 			if (orderIdStr != null) {
 				Long orderId = Long.valueOf(orderIdStr);
 				orderRepository.findById(orderId).ifPresent(order -> {
+					order.setStatus("INVENTORY_RESERVED");
+					orderRepository.save(order);
+					log.info("Order {} status updated to INVENTORY_RESERVED", orderId);
+				});
+			}
+		} catch (Exception e) {
+			log.error("Error processing InventoryReserved event: {}", e.getMessage(), e);
+		}
+	}
+
+	@KafkaListener(topics = "${app.kafka.topic.payment-success}", groupId = "order-group")
+	@Transactional
+	public void consumePaymentSuccessEvent(Map<String, Object> paymentEventMap) {
+		try {
+			if (paymentEventMap == null || paymentEventMap.isEmpty())
+				return;
+			log.info("Order Service consumed PaymentSuccess event: {}", paymentEventMap);
+
+			// The payment event publishes the Payment object, which contains 'orderId'
+			Number orderIdNumber = (Number) paymentEventMap.get("orderId");
+			if (orderIdNumber != null) {
+				Long orderId = orderIdNumber.longValue();
+				orderRepository.findById(orderId).ifPresent(order -> {
 					order.setStatus("APPROVED");
 					orderRepository.save(order);
 					log.info("Order {} status updated to APPROVED", orderId);
 				});
 			}
 		} catch (Exception e) {
-			log.error("Error processing InventoryReserved event: {}", e.getMessage(), e);
+			log.error("Error processing PaymentSuccess event: {}", e.getMessage(), e);
 		}
 	}
 
