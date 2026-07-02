@@ -24,14 +24,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         if (user == null || user.getName() == null || user.getEmail() == null) {
-            return ResponseEntity.badRequest().body("User, Name, and Email are required");
+            throw new com.example.ecommerce.common.exception.BadRequestException("User, Name, and Email are required");
         }
         try {
             return ResponseEntity.ok(userService.createUser(user));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new com.example.ecommerce.common.exception.BadRequestException(e.getMessage());
         }
     }
 
@@ -44,13 +44,13 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new com.example.ecommerce.common.exception.ResourceNotFoundException("User not found with id: " + id));
     }
 
     @GetMapping("/userId/{userId}")
     public ResponseEntity<User> getUserByUserId(@PathVariable String userId) {
         return userService.getUserByUserId(userId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new com.example.ecommerce.common.exception.ResourceNotFoundException("User not found with userId: " + userId));
     }
 }

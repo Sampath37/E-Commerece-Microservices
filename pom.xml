@@ -11,6 +11,7 @@
 	<description>Parent POM for Ecommerce Microservices</description>
 
 	<modules>
+		<module>common-exception</module>
 		<module>user-service</module>
 		<module>order-service</module>
 		<module>notification-service</module>

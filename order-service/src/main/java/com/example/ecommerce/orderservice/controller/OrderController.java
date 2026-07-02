@@ -25,14 +25,14 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         if (order == null || order.getProductCode() == null || order.getQuantity() == null) {
-            return ResponseEntity.badRequest().body("Order, ProductCode, and Quantity are required");
+            throw new com.example.ecommerce.common.exception.BadRequestException("Order, ProductCode, and Quantity are required");
         }
         try {
             return ResponseEntity.ok(orderService.createOrder(order));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw new com.example.ecommerce.common.exception.BadRequestException(e.getMessage());
         }
     }
 

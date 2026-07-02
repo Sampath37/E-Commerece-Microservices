@@ -38,7 +38,7 @@ public class InventoryController {
     public ResponseEntity<Inventory> getInventoryByProductCode(@PathVariable String productCode) {
         return inventoryService.getByProductCode(productCode)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new com.example.ecommerce.common.exception.ResourceNotFoundException("Inventory not found for product code: " + productCode));
     }
 
     @PostMapping("/cache/refresh")
