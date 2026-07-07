@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.example.ecommerce.orderservice.client.InventoryClient;
 import com.example.ecommerce.orderservice.client.UserClient;
+import com.example.ecommerce.orderservice.dto.InventoryDto;
 import com.example.ecommerce.orderservice.dto.InventoryEventDto;
 import com.example.ecommerce.orderservice.dto.UserDto;
 import com.example.ecommerce.orderservice.entity.Order;
@@ -33,19 +35,22 @@ public class OrderService {
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
 	private final UserClient userClient;
+	private final InventoryClient inventoryClient;
 	private final ObjectMapper objectMapper;
 
 	@Value("${app.kafka.topic.order-created}")
 	private String orderCreatedTopic;
 
 	public OrderService(OrderRepository orderRepository, ValidUserRepository validUserRepository,
-			KafkaTemplate<String, Object> kafkaTemplate, UserClient userClient, ObjectMapper objectMapper) {
+			KafkaTemplate<String, Object> kafkaTemplate, UserClient userClient, ObjectMapper objectMapper,
+			InventoryClient inventoryClient) {
 		this.orderRepository = orderRepository;
 		this.validUserRepository = validUserRepository;
 		this.kafkaTemplate = kafkaTemplate;
 
 		this.userClient = userClient;
 		this.objectMapper = objectMapper;
+		this.inventoryClient = inventoryClient;
 	}
 
 	@Transactional
@@ -62,6 +67,21 @@ public class OrderService {
 			}
 		} catch (Exception e) {
 			throw new IllegalArgumentException("User validation failed or User does not exist: " + e.getMessage());
+		}
+
+		// Synchronous Product Validation via OpenFeign
+		try {
+			InventoryDto inventoryDto = inventoryClient.getInventoryByProductCode(order.getProductCode());
+			if (inventoryDto == null || inventoryDto.getId() == null) {
+				throw new IllegalArgumentException("Product code " + order.getProductCode() + " does not exist!");
+			}
+			if ("INACTIVE".equalsIgnoreCase(inventoryDto.getStatus())) {
+				throw new IllegalArgumentException("Product code " + order.getProductCode() + " is INACTIVE!");
+			}
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Product validation failed or Product is wrong/INACTIVE: " + e.getMessage());
 		}
 
 		// Asynchronous validation using Saga Pattern

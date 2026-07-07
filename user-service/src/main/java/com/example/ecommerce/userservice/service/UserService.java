@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.example.ecommerce.userservice.entity.User;
 import com.example.ecommerce.userservice.repo.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @Slf4j
@@ -20,20 +21,26 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final PasswordEncoder passwordEncoder;
     
     @Value("${app.kafka.topic.user-created}")
     private String userCreatedTopic;
 
     
-    public UserService(UserRepository userRepository, KafkaTemplate<String, Object> kafkaTemplate) {
+    public UserService(UserRepository userRepository, KafkaTemplate<String, Object> kafkaTemplate, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new IllegalArgumentException("User with email " + user.getEmail() + " already exists");
+        }
+
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
         User savedUser = userRepository.save(user);
@@ -55,5 +62,31 @@ public class UserService {
 
     public Optional<User> getUserByUserId(String userId) {
         return userRepository.findByUserId(userId);
+    }
+
+    public User authenticate(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+        
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+        
+        return user;
+    }
+
+    @Transactional
+    public User changePassword(String email, String oldPassword, String newPassword) {
+        User user = authenticate(email, oldPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with userId: " + userId));
+        userRepository.delete(user);
+        log.info("Deleted User with userId: {}", userId);
     }
 }

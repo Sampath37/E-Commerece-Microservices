@@ -7,5 +7,6 @@ public class InventoryDto {
     private Long id;
     private String productCode;
     private Integer stock;
+    private String status;
 
 }

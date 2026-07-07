@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.ecommerce.common.exception.BadRequestException;
 import com.example.ecommerce.orderservice.entity.Order;
 import com.example.ecommerce.orderservice.service.OrderService;
 
@@ -27,12 +28,12 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         if (order == null || order.getProductCode() == null || order.getQuantity() == null) {
-            throw new com.example.ecommerce.common.exception.BadRequestException("Order, ProductCode, and Quantity are required");
+            throw new BadRequestException("Order, ProductCode, and Quantity are required");
         }
         try {
             return ResponseEntity.ok(orderService.createOrder(order));
         } catch (IllegalArgumentException e) {
-            throw new com.example.ecommerce.common.exception.BadRequestException(e.getMessage());
+            throw new BadRequestException(e.getMessage());
         }
     }
 

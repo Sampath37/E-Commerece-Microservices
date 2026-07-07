@@ -10,6 +10,7 @@ public class InventoryClientFallback implements InventoryClient {
         InventoryDto fallback = new InventoryDto();
         fallback.setProductCode(productCode);
         fallback.setStock(0); // Fallback to 0 stock
+        fallback.setStatus("UNKNOWN");
         return fallback;
     }
 }
