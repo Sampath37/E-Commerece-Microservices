@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface InventoryClient {
 
     @GetMapping("/api/inventory/product/{productCode}")
-    InventoryDto getInventoryByProductCode(@PathVariable("productCode") String productCode);
+    InventoryDto getInventoryByProductCode(@PathVariable String productCode);
 }

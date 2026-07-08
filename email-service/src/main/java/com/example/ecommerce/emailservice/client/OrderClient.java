@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface OrderClient {
     
     @GetMapping("/api/orders/id/{id}")
-    OrderDto getOrderById(@PathVariable("id") Long id);
+    OrderDto getOrderById(@PathVariable Long id);
 }

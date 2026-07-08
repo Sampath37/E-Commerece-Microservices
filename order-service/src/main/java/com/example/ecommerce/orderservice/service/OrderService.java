@@ -63,25 +63,33 @@ public class OrderService {
 		try {
 			UserDto userDto = userClient.getUserByUserId(order.getUserId());
 			if (userDto == null) {
-				throw new IllegalArgumentException("User with ID " + order.getUserId() + " does not exist!");
+				log.warn("User validation failed: User with ID {} does not exist", order.getUserId());
+				order.setStatus("REJECTED_USER_NOT_FOUND");
+				return order;
 			}
 		} catch (Exception e) {
-			throw new IllegalArgumentException("User validation failed or User does not exist: " + e.getMessage());
+			log.error("User validation failed due to service error: {}", e.getMessage());
+			order.setStatus("REJECTED_USER_SERVICE_ERROR");
+			return order;
 		}
 
 		// Synchronous Product Validation via OpenFeign
 		try {
 			InventoryDto inventoryDto = inventoryClient.getInventoryByProductCode(order.getProductCode());
 			if (inventoryDto == null || inventoryDto.getId() == null) {
-				throw new IllegalArgumentException("Product code " + order.getProductCode() + " does not exist!");
+				log.warn("Product validation failed: Product code {} does not exist", order.getProductCode());
+				order.setStatus("REJECTED_PRODUCT_NOT_FOUND");
+				return order;
 			}
 			if ("INACTIVE".equalsIgnoreCase(inventoryDto.getStatus())) {
-				throw new IllegalArgumentException("Product code " + order.getProductCode() + " is INACTIVE!");
+				log.warn("Product validation failed: Product code {} is INACTIVE", order.getProductCode());
+				order.setStatus("REJECTED_PRODUCT_INACTIVE");
+				return order;
 			}
-		} catch (IllegalArgumentException e) {
-			throw e;
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Product validation failed or Product is wrong/INACTIVE: " + e.getMessage());
+			log.error("Product validation failed due to service error: {}", e.getMessage());
+			order.setStatus("REJECTED_INVENTORY_SERVICE_ERROR");
+			return order;
 		}
 
 		// Asynchronous validation using Saga Pattern
@@ -107,19 +115,19 @@ public class OrderService {
 		return orderRepository.findAll();
 	}
 
-	public Order getOrderById(String userId) {
+	public List<Order> getOrderById(String userId) {
 		if (userId != null) {
-			Order order = orderRepository.findByUserId(userId);
-			if (order != null) {
-				return order;
+			List<Order> orders = orderRepository.findByUserId(userId);
+			if (orders != null && !orders.isEmpty()) {
+				return orders;
 			} else {
-				log.error("UserId is wrong {}", userId);
-				return null;
+				log.error("No orders found for UserId {}", userId);
+				return List.of();
 			}
 		} else {
 			log.error("userId is null {}", userId);
 		}
-		return null;
+		return List.of();
 	}
 
 	public Order getOrderByOrderId(Long orderId) {

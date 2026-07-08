@@ -14,15 +14,14 @@ import com.example.ecommerce.emailservice.service.EmailService;
 @RequestMapping("/api/emails")
 public class EmailController {
 
-    private final EmailService emailService;
+	private final EmailService emailService;
 
-    
-    public EmailController(EmailService emailService) {
-        this.emailService = emailService;
-    }
+	public EmailController(EmailService emailService) {
+		this.emailService = emailService;
+	}
 
-    @GetMapping
-    public ResponseEntity<List<EmailLog>> getAllEmails() {
-        return ResponseEntity.ok(emailService.getAllEmails());
-    }
+	@GetMapping
+	public ResponseEntity<List<EmailLog>> getAllEmails() {
+		return ResponseEntity.ok(emailService.getAllEmails());
+	}
 }

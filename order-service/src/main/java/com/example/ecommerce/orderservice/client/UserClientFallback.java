@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 public class UserClientFallback implements UserClient {
     @Override
     public UserDto getUserByUserId(String userId) {
-        UserDto fallback = new UserDto();
-        fallback.setUserId(userId);
-        fallback.setName("Fallback User");
-        return fallback;
+        // Return null so the OrderService correctly identifies that the user doesn't exist
+        return null;
     }
 }

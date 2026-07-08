@@ -35,14 +35,20 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
                 try {
                     jwtUtil.validateToken(authHeader);
                     String userId = jwtUtil.extractUserId(authHeader);
+                    String scopes = jwtUtil.extractScopes(authHeader);
                     
-                    // Mutate the request to add the user id header
+                    // Mutate the request to add the user id and scopes header
                     exchange = exchange.mutate()
-                        .request(builder -> builder.header("X-Auth-User-Id", userId))
+                        .request(builder -> {
+                            builder.header("X-Auth-User-Id", userId);
+                            if (scopes != null) {
+                                builder.header("X-Auth-User-Scopes", scopes);
+                            }
+                        })
                         .build();
                         
                 } catch (Exception e) {
-                    System.out.println("Invalid access...!");
+                    System.out.println("Invalid access...! Reason: " + e.getMessage());
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
                 }
