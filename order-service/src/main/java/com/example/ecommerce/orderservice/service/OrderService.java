@@ -18,9 +18,7 @@ import com.example.ecommerce.orderservice.dto.InventoryDto;
 import com.example.ecommerce.orderservice.dto.InventoryEventDto;
 import com.example.ecommerce.orderservice.dto.UserDto;
 import com.example.ecommerce.orderservice.entity.Order;
-import com.example.ecommerce.orderservice.entity.ValidUser;
 import com.example.ecommerce.orderservice.repo.OrderRepository;
-import com.example.ecommerce.orderservice.repo.ValidUserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderService {
 
 	private final OrderRepository orderRepository;
-	private final ValidUserRepository validUserRepository; // Keeping for legacy/Kafka event
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
 	private final UserClient userClient;
@@ -41,11 +38,9 @@ public class OrderService {
 	@Value("${app.kafka.topic.order-created}")
 	private String orderCreatedTopic;
 
-	public OrderService(OrderRepository orderRepository, ValidUserRepository validUserRepository,
-			KafkaTemplate<String, Object> kafkaTemplate, UserClient userClient, ObjectMapper objectMapper,
-			InventoryClient inventoryClient) {
+	public OrderService(OrderRepository orderRepository, KafkaTemplate<String, Object> kafkaTemplate,
+			UserClient userClient, ObjectMapper objectMapper, InventoryClient inventoryClient) {
 		this.orderRepository = orderRepository;
-		this.validUserRepository = validUserRepository;
 		this.kafkaTemplate = kafkaTemplate;
 
 		this.userClient = userClient;
@@ -137,23 +132,6 @@ public class OrderService {
 			log.error("orderId is null");
 		}
 		return null;
-	}
-
-	@KafkaListener(topics = "${app.kafka.topic.user-created}", groupId = "order-group")
-	public void consumeUserCreatedEvent(Map<String, Object> userEvent) {
-		try {
-			if (userEvent == null || userEvent.isEmpty())
-				return;
-			log.info("Order Service consumed UserCreated event: {}", userEvent);
-
-			String userId = (String) userEvent.get("userId");
-			if (userId != null && !userId.trim().isEmpty()) {
-				validUserRepository.save(new ValidUser(userId));
-				log.info("Saved valid user to local cache: {}", userId);
-			}
-		} catch (Exception e) {
-			log.error("Error processing UserCreated event: {}", e.getMessage(), e);
-		}
 	}
 
 	@KafkaListener(topics = "${app.kafka.topic.inventory-reserved}", groupId = "order-group")

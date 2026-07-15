@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ecommerce.paymentservice.client.OrderClient;
+import com.example.ecommerce.paymentservice.dto.OrderDto;
 import com.example.ecommerce.paymentservice.entity.Payment;
 import com.example.ecommerce.paymentservice.repo.PaymentRepository;
 
@@ -46,14 +47,14 @@ public class PaymentService {
 			if (reservedEventMap == null || reservedEventMap.isEmpty())
 				return;
 			log.info("Payment Service consumed InventoryReserved event: {}", reservedEventMap);
-			
+
 			String orderIdStr = (String) reservedEventMap.get("orderId");
 			if (orderIdStr != null) {
 				Long orderId = Long.valueOf(orderIdStr);
 
 				// Synchronous validation using OpenFeign
 				try {
-					com.example.ecommerce.paymentservice.dto.OrderDto orderDto = orderClient.getOrderById(orderId);
+					OrderDto orderDto = orderClient.getOrderById(orderId);
 					if (orderDto == null) {
 						log.warn("Payment aborted: Order with ID {} could not be verified via API", orderId);
 						return;
