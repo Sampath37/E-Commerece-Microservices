@@ -1,7 +1,0 @@
-com\example\ecommerce\orderservice\entity\ValidUser.class
-com\example\ecommerce\orderservice\repo\OrderRepository.class
-com\example\ecommerce\orderservice\OrderServiceApplication.class
-com\example\ecommerce\orderservice\repo\ValidUserRepository.class
-com\example\ecommerce\orderservice\entity\Order.class
-com\example\ecommerce\orderservice\controller\OrderController.class
-com\example\ecommerce\orderservice\service\OrderService.class

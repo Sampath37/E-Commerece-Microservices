@@ -1,5 +1,0 @@
-com\example\ecommerce\userservice\entity\User.class
-com\example\ecommerce\userservice\UserServiceApplication.class
-com\example\ecommerce\userservice\service\UserService.class
-com\example\ecommerce\userservice\repo\UserRepository.class
-com\example\ecommerce\userservice\controller\UserController.class

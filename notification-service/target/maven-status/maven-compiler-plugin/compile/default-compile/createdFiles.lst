@@ -1,5 +1,0 @@
-com\example\ecommerce\notificationservice\NotificationServiceApplication.class
-com\example\ecommerce\notificationservice\entity\Notification.class
-com\example\ecommerce\notificationservice\service\NotificationService.class
-com\example\ecommerce\notificationservice\repo\NotificationRepository.class
-com\example\ecommerce\notificationservice\controller\NotificationController.class

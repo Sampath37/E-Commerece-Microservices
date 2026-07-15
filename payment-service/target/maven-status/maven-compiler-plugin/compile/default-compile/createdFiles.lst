@@ -1,5 +1,0 @@
-com\example\ecommerce\paymentservice\controller\PaymentController.class
-com\example\ecommerce\paymentservice\entity\Payment.class
-com\example\ecommerce\paymentservice\service\PaymentService.class
-com\example\ecommerce\paymentservice\repo\PaymentRepository.class
-com\example\ecommerce\paymentservice\PaymentServiceApplication.class

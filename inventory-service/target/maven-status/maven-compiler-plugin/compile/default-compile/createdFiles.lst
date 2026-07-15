@@ -1,5 +1,0 @@
-com\example\ecommerce\inventoryservice\controller\InventoryController.class
-com\example\ecommerce\inventoryservice\service\InventoryService.class
-com\example\ecommerce\inventoryservice\InventoryServiceApplication.class
-com\example\ecommerce\inventoryservice\entity\Inventory.class
-com\example\ecommerce\inventoryservice\repo\InventoryRepository.class
