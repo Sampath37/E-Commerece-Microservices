@@ -4,7 +4,7 @@ A robust, highly scalable E-Commerce platform built using the **Spring Boot Micr
 
 ## 🏗️ Architecture Overview
 
-The platform consists of several loosely coupled microservices communicating asynchronously via Apache Kafka and synchronously via Spring Cloud Gateway.
+The platform consists of several loosely coupled microservices communicating asynchronously via Apache Kafka and synchronously via Spring Cloud OpenFeign.
 
 ### Core Services
 - **User Service**: Acts as the Identity Provider (IdP). Manages user registration, profile updates, and secure JWT-based authentication.
@@ -34,14 +34,15 @@ The platform consists of several loosely coupled microservices communicating asy
 - **Global Error Handling**: Unhandled exceptions are automatically caught by the aspect, logged at the `ERROR` level, and then cleanly translated into standardized JSON responses via a shared `@RestControllerAdvice` (`GlobalExceptionHandler`).
 
 ### 🔄 Event-Driven Saga Pattern
-- **Apache Kafka**: Complex distributed transactions (like creating an order, reserving inventory, and processing payment) are handled asynchronously using Kafka topics (e.g., `user-created`). This ensures eventual consistency and high availability.
+- **Apache Kafka**: Complex distributed transactions (like creating an order, reserving inventory, and processing payment) are handled asynchronously using Kafka topics (e.g., `inventory-reserved`, `payment-success`). This ensures eventual consistency and high availability.
+- **OpenFeign**: Synchronous internal communication (e.g., validating a user or product before placing an order) is handled cleanly via Spring Cloud OpenFeign clients.
 
 ---
 
 ## 🛠️ Technology Stack
 - **Backend Core**: Java 17, Spring Boot 3.x, Spring Cloud
 - **Security**: JJWT (JSON Web Token), Spring Security Crypto
-- **Messaging**: Apache Kafka
+- **Messaging & Communication**: Apache Kafka, Spring Cloud OpenFeign
 - **Resilience**: Resilience4j (Circuit Breakers & Time Limiters)
 - **Database**: Spring Data JPA / Hibernate
 - **Build Tool**: Maven
@@ -70,3 +71,6 @@ All requests should be routed through the API Gateway (port `8080`).
 - `POST /api/users/login` - Authenticate and receive JWT (Open)
 - `POST /api/users/change-password` - Change password (Secured)
 - `DELETE /api/users/{userId}` - Delete user profile (Secured)
+
+## 📁 Version Control
+A comprehensive `.gitignore` is included at the project root to ensure compiled classes, logs, IDE configurations, and `target/` build directories are kept out of the version history, maintaining a clean repository.
